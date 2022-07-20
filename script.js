@@ -2,7 +2,12 @@
 
 const bookings = [];
 
-const createBooking = function (flightNum, numPassengers, price) {
+// Way of adding a default values ES6+
+const createBooking = function (
+  flightNum,
+  numPassengers = 1,
+  price = 199 * numPassengers
+) {
   const booking = {
     flightNum,
     numPassengers,
@@ -13,3 +18,8 @@ const createBooking = function (flightNum, numPassengers, price) {
 };
 
 createBooking("LH123");
+
+createBooking("LH123", 2);
+createBooking("LH123", undefined, 500);
+
+createBooking("LH123", 2, 587);
