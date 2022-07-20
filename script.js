@@ -1,5 +1,38 @@
 "use strict";
 
+//
+//
+// 129 Arguments by value and reference
+const fligth = "LH678";
+const vi = {
+  name: "vi",
+  passport: 2323203,
+};
+
+const checkIn = function (flightNum, passenger) {
+  flightNum = "LA999";
+  passenger.name = "Mr." + passenger.name;
+
+  if (passenger.passport === 2323203) {
+    console.log("checked in");
+  } else {
+    console.log("wrong passport");
+  }
+};
+
+const newPassport = function (person) {
+  person.passport = Math.trunc(Math.random() * 10000000);
+};
+
+newPassport(vi);
+
+checkIn(fligth, vi);
+console.log(fligth);
+console.log(vi);
+
+//
+//
+// 128 Default parameters in functions
 const bookings = [];
 
 // Way of adding a default values ES6+
