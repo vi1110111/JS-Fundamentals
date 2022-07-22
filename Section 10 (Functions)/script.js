@@ -1,4 +1,31 @@
 "use strict";
+//
+//
+// 138 More Closures
+
+// 137 Closures
+// const secureBooking = function () {
+//   let passengerCount = 0;
+//   return function () {
+//     passengerCount++;
+//     console.log(`${passengerCount} passengers`);
+//   };
+// };
+
+// const booker = secureBooking();
+// booker();
+// booker();
+
+// console.dir(booker);
+
+//
+//
+// 136 IIFE Immediately Invoked Function Expressions
+// (function () {
+//   console.log("This will never run again");
+// })();
+//
+//
 ///////////////////////////////////////
 // Coding Challenge #1
 
