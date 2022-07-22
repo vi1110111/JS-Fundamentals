@@ -110,3 +110,37 @@ const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 // console.log(arr[arr.length - 1]);
 // console.log(arr.slice(-1)[0]);
 // console.log(arr.at(-1));
+//
+//
+// 144 Looping Arrays: forEach
+// For of loop
+// console.log('------- FOR OF -------');
+// for (const [i, movement] of movements.entries()) {
+//   if (movement > 0) {
+//     console.log(`Movement ${i + 1}: You deposited ${movement}`);
+//   } else {
+//     console.log(`Movement ${i + 1}: You withdrew ${Math.abs(movement)}`);
+//   }
+// }
+// // ForEach loop
+// console.log('------- FOR EACH -------');
+// movements.forEach(function (movement, index, array) {
+//   if (movement > 0) {
+//     console.log(`Movement ${index + 1}: You deposited ${movement}`);
+//   } else {
+//     console.log(`Movement ${index + 1}: You withdrew ${Math.abs(movement)}`);
+//   }
+// });
+//
+//
+// 145 forEach With Maps and Sets
+//MAP
+// currencies.forEach(function (value, key, map) {
+//   console.log(`${key}: ${value}`);
+// });
+// // SET
+// const currenciesUnique = new Set(['USD', 'GBP', 'USD', 'EUR']);
+// console.log(currenciesUnique);
+// currenciesUnique.forEach(function (value, _value, set) {
+//   console.log(`${_value}: ${value}`);
+// });
