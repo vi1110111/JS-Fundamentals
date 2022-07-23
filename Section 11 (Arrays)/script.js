@@ -79,9 +79,9 @@ const displayMovements = function (movements) {
 };
 
 // 153 The reduce Method
-const calcPrintBalance = function (movements) {
-  const balance = movements.reduce((acc, cur) => acc + cur, 0);
-  labelBalance.textContent = `${balance} €`;
+const calcPrintBalance = function (acc) {
+  acc.balance = acc.movements.reduce((acc, cur) => acc + cur, 0);
+  labelBalance.textContent = `${acc.balance} €`;
 };
 
 // 155 The Magic of Chaining Methods
@@ -122,6 +122,16 @@ createUserNames(accounts);
 // 158 Implementing Login
 
 let currentAccount;
+
+const updateUI = function (acc) {
+  // Display movements
+  displayMovements(acc.movements);
+  // Display Balance
+  calcPrintBalance(acc);
+  // Display Summary
+  calcDisplaySummary(acc);
+};
+
 // Event handler
 btnLogin.addEventListener('click', function (e) {
   // Prevent form from submitting
@@ -141,16 +151,52 @@ btnLogin.addEventListener('click', function (e) {
     // Clear inputs
     inputLoginPin.value = inputLoginUsername.value = '';
     inputLoginPin.blur();
-    // Display movements
-    displayMovements(currentAccount.movements);
-    // Display Balance
-    calcPrintBalance(currentAccount.movements);
-    // Display Summary
-    calcDisplaySummary(currentAccount);
+
+    updateUI(currentAccount);
   }
 });
 
 // 159 Implementing Transfers
+
+btnTransfer.addEventListener('click', function (e) {
+  e.preventDefault();
+  const amount = Number(inputTransferAmount.value);
+  const receiverAcc = accounts.find(
+    acc => acc.username === inputTransferTo.value
+  );
+
+  if (
+    receiverAcc &&
+    amount > 0 &&
+    currentAccount.balance >= amount &&
+    receiverAcc.username !== currentAccount.username
+  ) {
+    console.log('Yes');
+    currentAccount.movements.push(-amount);
+    receiverAcc.movements.push(amount);
+    updateUI(currentAccount);
+  }
+
+  inputTransferAmount.value = inputTransferTo.value = '';
+});
+
+// 160 The findIndex Method
+
+btnClose.addEventListener('click', function (e) {
+  e.preventDefault();
+  if (
+    Number(inputClosePin.value) === currentAccount.pin &&
+    inputCloseUsername.value === currentAccount.username
+  ) {
+    const index = accounts.findIndex(
+      acc => acc.username === currentAccount.username
+    );
+    accounts.splice(index, 1);
+    containerApp.style.opacity = 0;
+    inputClosePin.value = inputCloseUsername.value = '';
+    labelWelcome.textContent = 'Log in to get started';
+  }
+});
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
