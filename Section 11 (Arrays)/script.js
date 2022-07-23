@@ -62,9 +62,10 @@ const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
 // 147 Creating DOM elements
-const displayMovements = function (movements) {
+const displayMovements = function (movements, sort = false) {
   containerMovements.innerHTML = '';
-  movements.forEach(function (mov, i) {
+  const movs = sort ? movements.slice().sort((a, b) => a - b) : movements;
+  movs.forEach(function (mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
 
     const html = `
@@ -206,6 +207,15 @@ btnClose.addEventListener('click', function (e) {
     inputClosePin.value = inputCloseUsername.value = '';
     labelWelcome.textContent = 'Log in to get started';
   }
+});
+
+// 163
+let sorted = false;
+
+btnSort.addEventListener('click', function (e) {
+  e.preventDefault();
+  displayMovements(currentAccount.movements, !sorted);
+  sorted = !sorted;
 });
 
 /////////////////////////////////////////////////
@@ -464,3 +474,45 @@ TEST DATA 2: [16, 6, 10, 5, 6, 1, 4]*/
 //   .flatMap(acc => acc.movements)
 //   .reduce((acc, cur) => acc + cur);
 // console.log(overalBalance);
+//
+//
+// 163 Sorting Arrays
+// const owners = ['Vi', 'Jo', 'Za', 'Ad', 'Ma'];
+// console.log(owners.sort());
+// console.log(owners);
+
+// console.log(movements);
+// // Ascending
+// console.log(movements.sort((a, b) => a - b));
+// // Descending
+// console.log(movements.sort((a, b) => b - a));
+//
+//
+// 164 More Ways of Creating and Filling Arrays
+// Empty arr + fill
+// const x = new Array(7);
+// console.log(x);
+// //x.fill(5);
+// x.fill(1, 3, 5);
+// console.log(x);
+
+// // Array.from
+// const y = Array.from({ length: 7 }, () => 1);
+// console.log(y);
+
+// const z = Array.from({ length: 7 }, (_, i) => i + 1);
+// console.log(z);
+
+// const randomDice = Array.from({ length: 100 }, () =>
+//   Math.trunc(Math.random() * 6 + 1)
+// );
+// console.log(randomDice);
+// ///////////////////////
+
+// labelBalance.addEventListener('click', function () {
+//   const movementsUI = Array.from(
+//     document.querySelectorAll('.movements__value'),
+//     el => Number(el.textContent.replace('€', ''))
+//   );
+//   console.log(movementsUI);
+// });
