@@ -180,8 +180,18 @@ btnTransfer.addEventListener('click', function (e) {
   inputTransferAmount.value = inputTransferTo.value = '';
 });
 
-// 160 The findIndex Method
+// 161 some and every
+btnLoan.addEventListener('click', function (e) {
+  e.preventDefault();
+  const amount = Number(inputLoanAmount.value);
+  if (amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)) {
+    currentAccount.movements.push(amount);
+    updateUI(currentAccount);
+    inputLoanAmount.value = '';
+  }
+});
 
+// 160 The findIndex Method
 btnClose.addEventListener('click', function (e) {
   e.preventDefault();
   if (
@@ -420,3 +430,37 @@ TEST DATA 2: [16, 6, 10, 5, 6, 1, 4]*/
 // console.log(accounts);
 // const account = accounts.find(acc => acc.owner === 'Jessica Davis');
 // console.log(account);
+//
+//
+// 161 some and every
+// console.log(movements);
+// // EQUALITY
+// console.log(movements.includes(-400));
+
+// // CONDITION
+// const anyDeposits = movements.some(mov => mov > 5550);
+// console.log(anyDeposits);
+
+// // EVERY if every elemts satisfy condition
+// console.log(movements.every(mov => mov > 0));
+// console.log(account4.movements.every(mov => mov > 0));
+//
+//
+// 162 flat and flatMap
+// const arr = [[1, 2, 3], [5, 5, 2], 7, 0];
+// // remove nested arrays
+// console.log(arr.flat());
+
+// const arrDeep = [[[1, 2], 3], [5, [5, 2]], 7, 0];
+// console.log(arrDeep.flat(2));
+
+// const overalBalance = accounts
+//   .map(acc => acc.movements)
+//   .flat()
+//   .reduce((acc, cur) => acc + cur);
+// console.log(overalBalance);
+// // FlatMAP
+// const overalBalance2 = accounts
+//   .flatMap(acc => acc.movements)
+//   .reduce((acc, cur) => acc + cur);
+// console.log(overalBalance);
