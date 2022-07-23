@@ -77,34 +77,32 @@ const displayMovements = function (movements) {
     containerMovements.insertAdjacentHTML('afterbegin', html);
   });
 };
-displayMovements(account1.movements);
 
 // 153 The reduce Method
 const calcPrintBalance = function (movements) {
   const balance = movements.reduce((acc, cur) => acc + cur, 0);
   labelBalance.textContent = `${balance} €`;
 };
-calcPrintBalance(account1.movements);
 
 // 155 The Magic of Chaining Methods
-const calcDisplaySummary = function (movements) {
-  const incomes = movements
+const calcDisplaySummary = function (acc) {
+  const incomes = acc.movements
     .filter(mov => mov > 0)
-    .reduce((acc, cur) => acc + cur);
+    .reduce((acc, cur) => acc + cur, 0);
   labelSumIn.textContent = `${incomes}€`;
 
-  const out = movements.filter(mov => mov < 0).reduce((acc, cur) => acc + cur);
+  const out = acc.movements
+    .filter(mov => mov < 0)
+    .reduce((acc, cur) => acc + cur, 0);
   labelSumOut.textContent = `${Math.abs(out)}€`;
 
-  const interest = movements
+  const interest = acc.movements
     .filter(mov => mov > 0)
-    .map(dep => (dep * 1.2) / 100)
+    .map(dep => (dep * acc.interestRate) / 100)
     .filter(int => int > 1)
     .reduce((acc, cur) => acc + cur, 0);
   labelSumInterest.textContent = `${interest}€`;
 };
-
-calcDisplaySummary(account1.movements);
 
 // 151 Computing Usernames
 const user = 'Steven Thomas Williams'; // stw
@@ -120,6 +118,39 @@ const createUserNames = function (accs) {
 };
 
 createUserNames(accounts);
+
+// 158 Implementing Login
+
+let currentAccount;
+// Event handler
+btnLogin.addEventListener('click', function (e) {
+  // Prevent form from submitting
+  e.preventDefault();
+
+  currentAccount = accounts.find(
+    acc => acc.username === inputLoginUsername.value
+  );
+
+  if (currentAccount && currentAccount.pin === Number(inputLoginPin.value)) {
+    // Display UI and welcome message
+    labelWelcome.textContent = `Welcome back, ${
+      currentAccount.owner.split(' ')[0]
+    }`;
+    containerApp.style.opacity = 100;
+
+    // Clear inputs
+    inputLoginPin.value = inputLoginUsername.value = '';
+    inputLoginPin.blur();
+    // Display movements
+    displayMovements(currentAccount.movements);
+    // Display Balance
+    calcPrintBalance(currentAccount.movements);
+    // Display Summary
+    calcDisplaySummary(currentAccount);
+  }
+});
+
+// 159 Implementing Transfers
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
@@ -331,3 +362,15 @@ TEST DATA 2: [16, 6, 10, 5, 6, 1, 4]*/
 //   .reduce((acc, cur) => acc + cur);
 
 // console.log(totalDepositsUSD);
+//
+//
+// 157 The find Method
+// Only returns first elem that satisfy condition
+// const firstWithdrawal = movements.find(mov => mov < 0);
+
+// console.log(movements);
+// console.log(firstWithdrawal);
+
+// console.log(accounts);
+// const account = accounts.find(acc => acc.owner === 'Jessica Davis');
+// console.log(account);
