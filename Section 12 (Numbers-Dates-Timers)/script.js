@@ -22,8 +22,8 @@ const account1 = {
     '2020-04-01T10:17:24.185Z',
     '2020-05-08T14:11:59.604Z',
     '2020-05-27T17:01:17.194Z',
-    '2020-07-11T23:36:17.929Z',
-    '2020-07-12T10:51:36.790Z',
+    '2022-07-22T23:36:17.929Z',
+    '2022-07-23T10:51:36.790Z',
   ],
   currency: 'EUR',
   locale: 'pt-PT', // de-DE
@@ -80,18 +80,42 @@ const inputClosePin = document.querySelector('.form__input--pin');
 
 /////////////////////////////////////////////////
 // Functions
+
+// 177
+const formatMovementDate = function (date, locale) {
+  const calcDaysPast = (date1, date2) =>
+    Math.round(Math.abs((date2 - date1) / (1000 * 60 * 60 * 24)));
+
+  const daysPassed = calcDaysPast(new Date(), date);
+  if (daysPassed === 0) return 'Today';
+  if (daysPassed === 1) return 'Yesterday';
+  if (daysPassed <= 7) return `${daysPassed} days ago`;
+  // else {
+  //   const day = `${date.getDate()}`.padStart(2, 0);
+  //   const month = `${date.getMonth() + 1}`.padStart(2, 0);
+  //   const year = date.getFullYear();
+  //   return `${day}/${month}/${year}`;
+  // }
+  return new Intl.DateTimeFormat(locale).format(date);
+};
+
 // 147 Creating DOM elements
-const displayMovements = function (movements, sort = false) {
+const displayMovements = function (acc, sort = false) {
   containerMovements.innerHTML = '';
-  const movs = sort ? movements.slice().sort((a, b) => a - b) : movements;
+  const movs = sort
+    ? acc.movements.slice().sort((a, b) => a - b)
+    : acc.movements;
   movs.forEach(function (mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
+
+    const date = new Date(acc.movementsDates[i]);
+    const displayDate = formatMovementDate(date, acc.locale);
 
     const html = `
     <div class="movements__row">
     <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
-    <div class="movements__date">3 days ago</div>
-    <div class="movements__value">${mov}€</div>
+    <div class="movements__date">${displayDate}</div>
+    <div class="movements__value">${mov.toFixed(2)}€</div>
     </div>`;
 
     containerMovements.insertAdjacentHTML('afterbegin', html);
@@ -101,7 +125,7 @@ const displayMovements = function (movements, sort = false) {
 // 153 The reduce Method
 const calcPrintBalance = function (acc) {
   acc.balance = acc.movements.reduce((acc, cur) => acc + cur, 0);
-  labelBalance.textContent = `${acc.balance} €`;
+  labelBalance.textContent = `${acc.balance.toFixed(2)} €`;
 };
 
 // 155 The Magic of Chaining Methods
@@ -109,19 +133,19 @@ const calcDisplaySummary = function (acc) {
   const incomes = acc.movements
     .filter(mov => mov > 0)
     .reduce((acc, cur) => acc + cur, 0);
-  labelSumIn.textContent = `${incomes}€`;
+  labelSumIn.textContent = `${incomes.toFixed(2)}€`;
 
   const out = acc.movements
     .filter(mov => mov < 0)
     .reduce((acc, cur) => acc + cur, 0);
-  labelSumOut.textContent = `${Math.abs(out)}€`;
+  labelSumOut.textContent = `${Math.abs(out).toFixed(2)}€`;
 
   const interest = acc.movements
     .filter(mov => mov > 0)
     .map(dep => (dep * acc.interestRate) / 100)
     .filter(int => int > 1)
     .reduce((acc, cur) => acc + cur, 0);
-  labelSumInterest.textContent = `${interest}€`;
+  labelSumInterest.textContent = `${interest.toFixed(2)}€`;
 };
 
 // 151 Computing Usernames
@@ -139,19 +163,23 @@ const createUserNames = function (accs) {
 
 createUserNames(accounts);
 
-// 158 Implementing Login
-
-let currentAccount;
-
 const updateUI = function (acc) {
   // Display movements
-  displayMovements(acc.movements);
+  displayMovements(acc);
   // Display Balance
   calcPrintBalance(acc);
   // Display Summary
   calcDisplaySummary(acc);
 };
 
+let currentAccount;
+// FAKE ALWAYS LOGGED IN
+currentAccount = account1;
+updateUI(currentAccount);
+containerApp.style.opacity = 100;
+//
+//
+//
 // Event handler
 btnLogin.addEventListener('click', function (e) {
   // Prevent form from submitting
@@ -161,7 +189,7 @@ btnLogin.addEventListener('click', function (e) {
     acc => acc.username === inputLoginUsername.value
   );
 
-  if (currentAccount && currentAccount.pin === Number(inputLoginPin.value)) {
+  if (currentAccount && currentAccount.pin === +inputLoginPin.value) {
     // Display UI and welcome message
     labelWelcome.textContent = `Welcome back, ${
       currentAccount.owner.split(' ')[0]
@@ -173,6 +201,21 @@ btnLogin.addEventListener('click', function (e) {
     inputLoginPin.blur();
 
     updateUI(currentAccount);
+    const now = new Date();
+
+    const options = {
+      hour: 'numeric',
+      minute: 'numeric',
+      day: 'numeric',
+      month: 'numeric',
+      year: 'numeric',
+      //weekday: 'long',
+    };
+
+    labelDate.textContent = new Intl.DateTimeFormat(
+      currentAccount.locale,
+      options
+    ).format(now);
   }
 });
 
@@ -180,7 +223,7 @@ btnLogin.addEventListener('click', function (e) {
 
 btnTransfer.addEventListener('click', function (e) {
   e.preventDefault();
-  const amount = Number(inputTransferAmount.value);
+  const amount = +inputTransferAmount.value;
   const receiverAcc = accounts.find(
     acc => acc.username === inputTransferTo.value
   );
@@ -191,9 +234,13 @@ btnTransfer.addEventListener('click', function (e) {
     currentAccount.balance >= amount &&
     receiverAcc.username !== currentAccount.username
   ) {
-    console.log('Yes');
     currentAccount.movements.push(-amount);
     receiverAcc.movements.push(amount);
+
+    // Add transfer date
+    currentAccount.movementsDates.push(new Date().toISOString());
+    receiverAcc.movementsDates.push(new Date().toISOString());
+
     updateUI(currentAccount);
   }
 
@@ -203,10 +250,13 @@ btnTransfer.addEventListener('click', function (e) {
 // 161 some and every
 btnLoan.addEventListener('click', function (e) {
   e.preventDefault();
-  const amount = Number(inputLoanAmount.value);
+  const amount = Math.floor(inputLoanAmount.value);
+
   if (amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)) {
     currentAccount.movements.push(amount);
+    currentAccount.movementsDates.push(new Date().toISOString());
     updateUI(currentAccount);
+    // Add loan date
     inputLoanAmount.value = '';
   }
 });
@@ -215,7 +265,7 @@ btnLoan.addEventListener('click', function (e) {
 btnClose.addEventListener('click', function (e) {
   e.preventDefault();
   if (
-    Number(inputClosePin.value) === currentAccount.pin &&
+    +inputClosePin.value === currentAccount.pin &&
     inputCloseUsername.value === currentAccount.username
   ) {
     const index = accounts.findIndex(
@@ -233,12 +283,152 @@ let sorted = false;
 
 btnSort.addEventListener('click', function (e) {
   e.preventDefault();
-  displayMovements(currentAccount.movements, !sorted);
+  displayMovements(currentAccount, !sorted);
   sorted = !sorted;
 });
+
+// 176
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LECTURES
-
+//
+//
 // 170 Converting and Checking Numbers
-console.log(23 === 23.0);
+// console.log(23 === 23.0);
+// console.log(0.1 + 0.2);
+
+// // Conversion
+// console.log(Number('23'));
+// console.log(+'23');
+
+// // Parsing
+// // Trues to get rid of unnecessary symbols
+// console.log(Number.parseInt('30px', 10));
+// console.log(Number.parseInt('px30', 10));
+
+// console.log(Number.parseFloat('2.5rem'));
+// console.log(Number.parseInt('2.5rem'));
+
+// // IsNaN if value if value is NaN
+// console.log(Number.isNaN(20));
+// console.log(Number.isNaN('20'));
+// console.log(Number.isNaN(+'r20'));
+
+// // isFinite - better way of checking if value is a number!!!
+// console.log(Number.isFinite(20));
+// console.log(Number.isFinite('20'));
+//
+//
+// 171 Math and Rounding
+// console.log(Math.sqrt(25));
+// console.log(25 ** (1 / 2));
+
+// // max or min do conversion but not a parsign
+// console.log(Math.max(5, 7, 90, 23, 56));
+// console.log(Math.max(5, 7, '90', 23, 56));
+
+// console.log(Math.PI * Number.parseFloat('10px') ** 2);
+
+// console.log(Math.trunc(Math.random() * 6 + 1));
+
+// const randomInt = (min, max) =>
+//   Math.floor(Math.random() * (max - min) + 1) + min;
+// console.log(randomInt(1, 6));
+
+// // Rounding integers
+// console.log(Math.trunc(234.56));
+// console.log('---------round---------');
+// console.log(Math.round(23.9));
+// console.log(Math.round(23.3));
+// console.log('---------ceil---------');
+// console.log(Math.ceil(23.9));
+// console.log(Math.ceil(23.3));
+// console.log('---------floor---------');
+// console.log(Math.floor(23.9));
+
+// //
+// // toFixed give us a string!
+// console.log(+(23.9).toFixed(4));
+//
+//
+// // 172 The Remainder Operator
+// console.log(5 % 2);
+// console.log(5 / 2); // 5 = 2 * 2 + 1(remainder)
+
+// console.log(8 % 3);
+// console.log(8 / 3); // 8 = 2 * 3 + 2(remainder)
+
+// console.log(6 % 2);
+
+// const isEven = n => n % 2 === 0;
+// console.log(isEven(8));
+// console.log(isEven(23));
+
+// // Some fun
+// labelBalance.addEventListener('click', function () {
+//   [...document.querySelectorAll('.movements__row')].forEach((row, i) => {
+//     if (i % 2 === 0) row.style.backgroundColor = 'orangered';
+//     if (i % 3 === 0) row.style.backgroundColor = 'blue';
+//   });
+// });
+//
+//
+// // 173 Numeric Separators
+// // Solar system diameter
+// // 287, 460,000,000
+// const diameter = 287_460_000_000;
+// console.log(diameter);
+
+// const transferFee1 = 15_00;
+// const transferFee2 = 1_500;
+
+// console.log(transferFee1);
+// console.log(transferFee2);
+// // This doesn't work
+// console.log(Number('230_000'));
+// //
+// //
+// // 174 Working with BigInt
+// console.log(Number.MAX_SAFE_INTEGER);
+
+// console.log(23432473242370473248234723847378478n);
+// console.log(BigInt(23432473242370));
+// //
+// //
+// // 175 Creating Dates
+// // Create a date
+// // const now = new Date();
+// // console.log(now);
+
+// // console.log(new Date('December 24,2015'));
+// // console.log(new Date(account1.movementsDates[0]));
+
+// // console.log(new Date(2037, 10, 19, 15, 25, 5));
+
+// // // Unix date
+// // console.log(new Date(0));
+// // console.log(new Date(3 * 24 * 60 * 60 * 1000));
+
+// // Methods
+// const future = new Date(2037, 10, 19, 15, 25);
+// console.log(future);
+// console.log(future.getFullYear());
+// console.log(future.getMonth());
+// console.log(future.getDate());
+// console.log(future.toISOString());
+
+// console.log(Date.now());
+
+// future.setFullYear(2040);
+// console.log(future);
+// //
+// //
+// // 176 Operations With Dates
+// const future = new Date(2037, 10, 19, 15, 25);
+// console.log(Number(future));
+
+// const calcDaysPast = (date1, date2) =>
+//   Math.abs((date2 - date1) / (1000 * 60 * 60 * 24));
+// const days1 = calcDaysPast(new Date(2037, 3, 4), new Date(2037, 3, 24));
+
+// console.log(days1);
