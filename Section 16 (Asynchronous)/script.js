@@ -292,8 +292,18 @@ const getJSON = function (url, errorMsg = 'Something went wrong') {
 //
 // 258 The Event Loop in Practice
 {
-  console.log('Test Start');
-  setTimeout(() => console.log('0 sec,timer'), 0);
-  Promise.resolve('Resolved promise 1').then(res => console.log(res));
-  console.log('Test End');
+  // console.log('Test Start');
+  // setTimeout(() => console.log('0 sec,timer'), 0);
+  // Promise.resolve('Resolved promise 1').then(res => console.log(res));
+  // Promise.resolve('Resolved promise 2').then(res => {
+  //   for (let i = 0; i < 2000000000; i++) {}
+  //   console.log(res);
+  // });
+  // console.log('Test End');
+}
+
+//
+//
+// 259 Building a Simple Promise
+{
 }
